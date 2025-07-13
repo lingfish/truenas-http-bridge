@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY truenas_bridge.py /code/
 
-CMD ["fastapi", "run", "daemon.py", "--host", "::", "--port", "8000"]
+CMD ["fastapi", "run", "truenas_bridge.py", "--host", "::", "--port", "8000"]

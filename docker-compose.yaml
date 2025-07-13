@@ -14,7 +14,7 @@ services:
       - '8000:8000'
     privileged: False
     pull_policy: always
-    restart: 'no'
+    restart: 'unless-stopped'
     stdin_open: False
     tty: False
 x-notes: |-
