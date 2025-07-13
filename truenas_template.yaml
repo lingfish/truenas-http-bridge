@@ -1,0 +1,208 @@
+zabbix_export:
+  version: '6.4'
+  template_groups:
+    -
+      uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    -
+      uuid: f61f7e27961c44b3bd67b65a70ab8893
+      template: 'TrueNAS SCALE by Zabbix agent'
+      name: 'TrueNAS SCALE by Zabbix agent'
+      description: 'See https://github.com/lingfish/truenas-app-zabbix-agent'
+      groups:
+        -
+          name: Templates
+      items:
+        -
+          uuid: 3fdb6e5536b34a508272cb513555e3b0
+          name: 'Dataset details'
+          key: 'truenas.api[pool.dataset.details]'
+          history: '0'
+          trends: '0'
+          value_type: TEXT
+        -
+          uuid: 6f8f8777d1c2401e92df8d6a0cd9be8b
+          name: 'Pool details'
+          key: 'truenas.api[pool.query]'
+          history: '0'
+          trends: '0'
+          value_type: TEXT
+      discovery_rules:
+        -
+          uuid: 566d958216284548b45f646e7686da9e
+          name: 'ZFS datasets discovery'
+          type: DEPENDENT
+          key: zfs.dataset.discovery
+          delay: '0'
+          item_prototypes:
+            -
+              uuid: 11ab5b8aeba44c3bb09ff80f2dbe31e4
+              name: 'TrueNAS dataset [{#DATASET_NAME}]: Available space'
+              type: DEPENDENT
+              key: 'zfs.dataset.size[{#DATASET_NAME},available]'
+              delay: '0'
+              units: B
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$..[?(@.name == "{#DATASET_NAME}")].available.parsed.first()'
+              master_item:
+                key: 'truenas.api[pool.dataset.details]'
+            -
+              uuid: 94c7bb42fa974bc880fb37d1ef8c278f
+              name: 'TrueNAS dataset [{#DATASET_NAME}]: Compression ratio'
+              type: DEPENDENT
+              key: 'zfs.dataset.size[{#DATASET_NAME},compressratio]'
+              delay: '0'
+              value_type: FLOAT
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$..[?(@.name == "{#DATASET_NAME}")].compressratio.parsed.first()'
+              master_item:
+                key: 'truenas.api[pool.dataset.details]'
+            -
+              uuid: 939ebbcc897e47209da17145f19f76bc
+              name: 'TrueNAS dataset [{#DATASET_NAME}]: Used space'
+              type: DEPENDENT
+              key: 'zfs.dataset.size[{#DATASET_NAME},used]'
+              delay: '0'
+              units: B
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$..[?(@.name == "{#DATASET_NAME}")].used.parsed.first()'
+              master_item:
+                key: 'truenas.api[pool.dataset.details]'
+          master_item:
+            key: 'truenas.api[pool.dataset.details]'
+          lld_macro_paths:
+            -
+              lld_macro: '{#DATASET_NAME}'
+              path: $.name
+          preprocessing:
+            -
+              type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h
+        -
+          uuid: 4dbae97787714cc3b1329f1047e2dad2
+          name: 'ZFS pools discovery'
+          type: DEPENDENT
+          key: zfs.pool.discovery
+          delay: '0'
+          item_prototypes:
+            -
+              uuid: 28188506bd1947dbaa901e380739712c
+              name: 'TrueNAS pool [{#POOL_NAME}]: Allocated'
+              type: DEPENDENT
+              key: 'zfs.pool.size[{#POOL_NAME},allocated]'
+              delay: '0'
+              units: B
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$..[?(@.name == "{#POOL_NAME}")].allocated.first()'
+              master_item:
+                key: 'truenas.api[pool.query]'
+            -
+              uuid: b3c9bf88fcc54d62a1516b22c91349a8
+              name: 'TrueNAS pool [{#POOL_NAME}]: Available space'
+              type: DEPENDENT
+              key: 'zfs.pool.size[{#POOL_NAME},available]'
+              delay: '0'
+              units: B
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$..[?(@.name == "{#POOL_NAME}")].free.first()'
+              master_item:
+                key: 'truenas.api[pool.query]'
+            -
+              uuid: 266d083589d6437591be696de61a80b4
+              name: 'TrueNAS pool [{#POOL_NAME}]: Fragmentation'
+              type: DEPENDENT
+              key: 'zfs.pool.size[{#POOL_NAME},fragmentation]'
+              delay: '0'
+              value_type: FLOAT
+              units: '%'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$..[?(@.name == "{#POOL_NAME}")].fragmentation.first()'
+              master_item:
+                key: 'truenas.api[pool.query]'
+            -
+              uuid: 28b7e55a1f314e0fa82d5ab0370475b8
+              name: 'TrueNAS pool [{#POOL_NAME}]: Healthy'
+              type: DEPENDENT
+              key: 'zfs.pool.size[{#POOL_NAME},healthy]'
+              delay: '0'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$..[?(@.name == "{#POOL_NAME}")].healthy.first()'
+                -
+                  type: BOOL_TO_DECIMAL
+                  parameters:
+                    - ''
+              master_item:
+                key: 'truenas.api[pool.query]'
+            -
+              uuid: 3258195f678b49fe832cb5a006625317
+              name: 'TrueNAS pool [{#POOL_NAME}]: Size'
+              type: DEPENDENT
+              key: 'zfs.pool.size[{#POOL_NAME},size]'
+              delay: '0'
+              units: B
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$..[?(@.name == "{#POOL_NAME}")].size.first()'
+              master_item:
+                key: 'truenas.api[pool.query]'
+            -
+              uuid: 0ecc2a41edb948e0b54bbbc4b3aea4ad
+              name: 'TrueNAS pool [{#POOL_NAME}]: Used (%)'
+              type: CALCULATED
+              key: 'zfs.pool.size[{#POOL_NAME},used_percent]'
+              value_type: FLOAT
+              units: '%'
+              params: '100*last(//zfs.pool.size[{#POOL_NAME},allocated])/last(//zfs.pool.size[{#POOL_NAME},size])'
+            -
+              uuid: ecdd403ad9424f43a76cb5b9adb036aa
+              name: 'TrueNAS pool [{#POOL_NAME}]: Warning'
+              type: DEPENDENT
+              key: 'zfs.pool.size[{#POOL_NAME},warning]'
+              delay: '0'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$..[?(@.name == "{#POOL_NAME}")].warning.first()'
+                -
+                  type: BOOL_TO_DECIMAL
+                  parameters:
+                    - ''
+              master_item:
+                key: 'truenas.api[pool.query]'
+          master_item:
+            key: 'truenas.api[pool.query]'
+          lld_macro_paths:
+            -
+              lld_macro: '{#POOL_NAME}'
+              path: $.name
+          preprocessing:
+            -
+              type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h

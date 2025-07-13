@@ -1,0 +1,29 @@
+services:
+  api:
+    build: https://github.com/lingfish/truenas-http-bridge.git
+    environment:
+      TRUENAS_API_KEY: # Your API key
+      TRUENAS_API_USER: # Your API user
+      TRUENAS_HOST: # TrueNAS host
+      TZ: # Your timezone
+    group_add:
+      - 568
+    hostname: test
+    platform: linux/amd64
+    ports:
+      - '8000:8000'
+    privileged: False
+    pull_policy: always
+    restart: 'no'
+    stdin_open: False
+    tty: False
+x-notes: |-
+  # truenas-app-zabbix
+
+  ## Security
+  Be aware that this app gives any and all access to the TrueNAS API!
+
+  ## Bug reports and feature requests
+
+  If you find a bug in this app or have an idea for a new feature, please file an issue at
+  https://github.com/lingfish/truenas-http-bridge/issues
