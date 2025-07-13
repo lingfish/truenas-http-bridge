@@ -52,8 +52,10 @@ curl -X POST "http://localhost:8000/api/core.ping" -H "Content-Type: application
 
 Perhaps something more useful:
 
-```json
+```bash
 curl -X POST "http://localhost:8000/api/system.ntpserver.query" -H "Content-Type: application/json" -u "username:password" -d '{}' -s | jq .
+```
+```json
 [
   {
     "id": 1,

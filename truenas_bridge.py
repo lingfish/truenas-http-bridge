@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 import time
 
@@ -19,7 +20,6 @@ class Settings(BaseSettings):
     truenas_host: str
     truenas_api_key: SecretStr
     truenas_api_user: str
-    api_port: int = 8000
 
     model_config = dict(env_file=".env")
 
@@ -82,6 +82,7 @@ class TrueNASDaemon:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logging.getLogger("uvicorn.access").setLevel(logging.NOTSET)
     settings = Settings()
     truenas_daemon = TrueNASDaemon(settings)
     truenas_daemon.setup()
@@ -169,4 +170,4 @@ if __name__ == "__main__":
     import uvicorn
 
     settings = Settings()
-    uvicorn.run(app, host="0.0.0.0", port=settings.api_port, log_config=None)
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_config=None)

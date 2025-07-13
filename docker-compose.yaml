@@ -5,10 +5,11 @@ services:
       TRUENAS_API_KEY: # Your API key
       TRUENAS_API_USER: # Your API user
       TRUENAS_HOST: # TrueNAS host
+      API_PORT: # Your chosen API port
       TZ: # Your timezone
     group_add:
       - 568
-    hostname: test
+    hostname: truenas-http-bridge
     platform: linux/amd64
     ports:
       - '8000:8000'
@@ -18,7 +19,7 @@ services:
     stdin_open: False
     tty: False
 x-notes: |-
-  # truenas-app-zabbix
+  # truenas-http-bridge
 
   ## Security
   Be aware that this app gives any and all access to the TrueNAS API!
