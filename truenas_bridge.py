@@ -1,8 +1,12 @@
 import logging
+import os
+import signal
+import sys
 from contextlib import asynccontextmanager
 import time
 
 import structlog
+import tenacity
 import websocket
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -33,6 +37,7 @@ class TrueNASDaemon:
         self.settings = settings
         self.uri = f"wss://{settings.truenas_host}/api/current"
         self.client = None
+        self.retrying = False
 
     def setup(self):
         """Initialize the client connection"""
@@ -64,15 +69,15 @@ class TrueNASDaemon:
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=4, max=10),
         before_sleep=lambda retry_state: logger.warning(
-            "WebSocket connection lost, attempting reconnection",
+            "WebSocket connection lost, attempting reconnection shortly, ",
             attempt=retry_state.attempt_number
         )
     )
     def send_request(self, method: str, params: list) -> dict:
         """Send request using the established client connection"""
-        if not self.is_connected():
-            self.cleanup()
-            self.setup()
+        if self.retrying:
+            self.reset_connection()
+            self.retrying = False
 
         if not self.client:
             raise HTTPException(
@@ -81,7 +86,9 @@ class TrueNASDaemon:
 
         try:
             return self.client.call(method, *params)
+
         except (WebSocketConnectionClosedException, ClientException):
+            self.retrying = True
             raise
 
         except Exception as e:
@@ -168,7 +175,12 @@ async def handle_api_request(
         params=params,
         host=truenas_daemon.settings.truenas_host,
     )
-    return request.state.truenas_daemon.send_request(method, params)
+    try:
+        return request.state.truenas_daemon.send_request(method, params)
+    except tenacity.RetryError:
+        logger.error('Maximum reconnection attempts reached, exiting!')
+        os.kill(os.getpid(), signal.SIGTERM)
+
 
 
 @app.get("/health")
