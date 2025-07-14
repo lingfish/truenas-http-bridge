@@ -161,6 +161,7 @@ async def get_current_username(
     credentials: Annotated[HTTPBasicCredentials, Depends(security)],
     request: Request,
 ):
+    settings = request.state.truenas_daemon.settings
     current_username_bytes = credentials.username.encode('utf8')
     is_correct_username = secrets.compare_digest(current_username_bytes, settings.bridge_api_user.encode('utf8'))
     current_password_bytes = credentials.password.encode('utf8')
