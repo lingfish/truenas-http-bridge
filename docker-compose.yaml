@@ -5,9 +5,11 @@ services:
       tags:
         - "truenas-http-bridge:latest"
     environment:
-      TRUENAS_API_KEY: # Your API key
-      TRUENAS_API_USER: # Your API user
+      TRUENAS_API_KEY: # Your TrueNAS API key
+      TRUENAS_API_USER: # Your TrueNAS API user
       TRUENAS_HOST: # TrueNAS host
+      BRIDGE_API_USER: # The bridge API username
+      BRIDGE_API_PASSWORD: # The bridge API password
       API_PORT: # Your chosen API port
       TZ: # Your timezone
     group_add:
