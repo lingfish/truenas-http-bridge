@@ -82,7 +82,7 @@ class TrueNASDaemon:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logging.getLogger("uvicorn.access").setLevel(logging.NOTSET)
+    logging.getLogger("uvicorn.access").handlers.clear()
     settings = Settings()
     truenas_daemon = TrueNASDaemon(settings)
     truenas_daemon.setup()
@@ -170,4 +170,4 @@ if __name__ == "__main__":
     import uvicorn
 
     settings = Settings()
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_config=None)
+    uvicorn.run(app, host="0.0.0.0", port=8000)#, log_config=None)

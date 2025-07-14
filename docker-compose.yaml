@@ -1,6 +1,9 @@
 services:
   api:
-    build: https://github.com/lingfish/truenas-http-bridge.git
+    build:
+      context: https://github.com/lingfish/truenas-http-bridge.git
+      tags:
+        - "truenas-http-bridge:latest"
     environment:
       TRUENAS_API_KEY: # Your API key
       TRUENAS_API_USER: # Your API user
