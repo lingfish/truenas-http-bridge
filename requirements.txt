@@ -6,3 +6,4 @@ pydantic-settings
 #truenas-api-client @ git+https://github.com/truenas/api_client.git@master
 truenas-api-client @ git+https://github.com/lingfish/api_client.git@add_ping
 structlog
+tenacity

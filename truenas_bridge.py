@@ -3,14 +3,18 @@ from contextlib import asynccontextmanager
 import time
 
 import structlog
+import websocket
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from datetime import datetime
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
-from truenas_api_client import Client
+from truenas_api_client import Client, ClientException
 from fastapi import Request
+from websocket import WebSocketConnectionClosedException
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+
 
 # logging.basicConfig(level=logging.INFO)
 logger = structlog.get_logger()
@@ -55,14 +59,31 @@ class TrueNASDaemon:
             self.client.close()
             self.client = None
 
+    @retry(
+        retry=retry_if_exception_type((WebSocketConnectionClosedException, ClientException)),
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=4, max=10),
+        before_sleep=lambda retry_state: logger.warning(
+            "WebSocket connection lost, attempting reconnection",
+            attempt=retry_state.attempt_number
+        )
+    )
     def send_request(self, method: str, params: list) -> dict:
         """Send request using the established client connection"""
+        if not self.is_connected():
+            self.cleanup()
+            self.setup()
+
         if not self.client:
             raise HTTPException(
                 status_code=503, detail="TrueNAS client not initialized"
             )
+
         try:
             return self.client.call(method, *params)
+        except (WebSocketConnectionClosedException, ClientException):
+            raise
+
         except Exception as e:
             logger.error(f"Request failed: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
@@ -170,4 +191,4 @@ if __name__ == "__main__":
     import uvicorn
 
     settings = Settings()
-    uvicorn.run(app, host="0.0.0.0", port=8000)#, log_config=None)
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_config=None)
