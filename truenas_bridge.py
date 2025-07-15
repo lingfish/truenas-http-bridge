@@ -18,7 +18,7 @@ from truenas_api_client import Client, ClientException
 from fastapi import Request
 from websocket import WebSocketConnectionClosedException
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-
+from __version__ import __version__
 
 # logging.basicConfig(level=logging.INFO)
 logger = structlog.get_logger()
@@ -119,7 +119,7 @@ async def lifespan(app: FastAPI):
     truenas_daemon.cleanup()
 
 
-app = FastAPI(title='TrueNAS REST-to-WebSocket Bridge', lifespan=lifespan)
+app = FastAPI(title='TrueNAS REST-to-WebSocket Bridge', lifespan=lifespan, version=__version__)
 security = HTTPBasic()
 
 

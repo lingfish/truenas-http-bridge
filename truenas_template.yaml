@@ -6,38 +6,56 @@ zabbix_export:
       name: Templates
   templates:
     -
-      uuid: f61f7e27961c44b3bd67b65a70ab8893
-      template: 'TrueNAS SCALE by Zabbix agent'
-      name: 'TrueNAS SCALE by Zabbix agent'
-      description: 'See https://github.com/lingfish/truenas-app-zabbix-agent'
+      uuid: d02406c15611498bbfed22dfa3b7892a
+      template: 'TrueNAS SCALE by HTTP'
+      name: 'TrueNAS SCALE by HTTP'
+      description: 'See https://github.com/lingfish/truenas-http-bridge'
       groups:
         -
           name: Templates
       items:
         -
-          uuid: 3fdb6e5536b34a508272cb513555e3b0
+          uuid: 54bd9b7f88a84dec9a7290e1d1813ec4
           name: 'Dataset details'
+          type: HTTP_AGENT
           key: 'truenas.api[pool.dataset.details]'
           history: '0'
           trends: '0'
           value_type: TEXT
+          authtype: BASIC
+          username: '{$TRUENAS.API.USER}'
+          password: '{$TRUENAS.API.PASSWORD}'
+          timeout: 5s
+          url: '{$TRUENAS.API.SCHEME}://{HOST.CONN}:{$TRUENAS.API.PORT}/api/pool.dataset.details'
+          posts: '{}'
+          post_type: JSON
+          request_method: POST
         -
-          uuid: 6f8f8777d1c2401e92df8d6a0cd9be8b
+          uuid: b0b51ef6480b4745a7d97006589aecb2
           name: 'Pool details'
+          type: HTTP_AGENT
           key: 'truenas.api[pool.query]'
           history: '0'
           trends: '0'
           value_type: TEXT
+          authtype: BASIC
+          username: '{$TRUENAS.API.USER}'
+          password: '{$TRUENAS.API.PASSWORD}'
+          timeout: 5s
+          url: '{$TRUENAS.API.SCHEME}://{HOST.CONN}:{$TRUENAS.API.PORT}/api/pool.query'
+          posts: '{}'
+          post_type: JSON
+          request_method: POST
       discovery_rules:
         -
-          uuid: 566d958216284548b45f646e7686da9e
+          uuid: aac8c7a238244b11a0473d33769a2dd9
           name: 'ZFS datasets discovery'
           type: DEPENDENT
           key: zfs.dataset.discovery
           delay: '0'
           item_prototypes:
             -
-              uuid: 11ab5b8aeba44c3bb09ff80f2dbe31e4
+              uuid: e9bb2cd7e5134ee8b9434306a78f80c3
               name: 'TrueNAS dataset [{#DATASET_NAME}]: Available space'
               type: DEPENDENT
               key: 'zfs.dataset.size[{#DATASET_NAME},available]'
@@ -51,7 +69,7 @@ zabbix_export:
               master_item:
                 key: 'truenas.api[pool.dataset.details]'
             -
-              uuid: 94c7bb42fa974bc880fb37d1ef8c278f
+              uuid: 6119e08423664ccbb4bb56a275083e73
               name: 'TrueNAS dataset [{#DATASET_NAME}]: Compression ratio'
               type: DEPENDENT
               key: 'zfs.dataset.size[{#DATASET_NAME},compressratio]'
@@ -65,7 +83,7 @@ zabbix_export:
               master_item:
                 key: 'truenas.api[pool.dataset.details]'
             -
-              uuid: 939ebbcc897e47209da17145f19f76bc
+              uuid: cb0e6587d0114ce49e7145197714fbbf
               name: 'TrueNAS dataset [{#DATASET_NAME}]: Used space'
               type: DEPENDENT
               key: 'zfs.dataset.size[{#DATASET_NAME},used]'
@@ -90,14 +108,14 @@ zabbix_export:
               parameters:
                 - 1h
         -
-          uuid: 4dbae97787714cc3b1329f1047e2dad2
+          uuid: 41e6f1cbf99f423897507b2f3c1f4bd8
           name: 'ZFS pools discovery'
           type: DEPENDENT
           key: zfs.pool.discovery
           delay: '0'
           item_prototypes:
             -
-              uuid: 28188506bd1947dbaa901e380739712c
+              uuid: 73a4ce5d8237476eb891af6e1027a228
               name: 'TrueNAS pool [{#POOL_NAME}]: Allocated'
               type: DEPENDENT
               key: 'zfs.pool.size[{#POOL_NAME},allocated]'
@@ -111,7 +129,7 @@ zabbix_export:
               master_item:
                 key: 'truenas.api[pool.query]'
             -
-              uuid: b3c9bf88fcc54d62a1516b22c91349a8
+              uuid: 30e8b850724346b483eaf8e98b78cf5a
               name: 'TrueNAS pool [{#POOL_NAME}]: Available space'
               type: DEPENDENT
               key: 'zfs.pool.size[{#POOL_NAME},available]'
@@ -125,7 +143,7 @@ zabbix_export:
               master_item:
                 key: 'truenas.api[pool.query]'
             -
-              uuid: 266d083589d6437591be696de61a80b4
+              uuid: 71fd04ed596c4d25b6a672991418eb52
               name: 'TrueNAS pool [{#POOL_NAME}]: Fragmentation'
               type: DEPENDENT
               key: 'zfs.pool.size[{#POOL_NAME},fragmentation]'
@@ -140,7 +158,7 @@ zabbix_export:
               master_item:
                 key: 'truenas.api[pool.query]'
             -
-              uuid: 28b7e55a1f314e0fa82d5ab0370475b8
+              uuid: 5d712fecaa344c8fad97e0342aab8195
               name: 'TrueNAS pool [{#POOL_NAME}]: Healthy'
               type: DEPENDENT
               key: 'zfs.pool.size[{#POOL_NAME},healthy]'
@@ -157,7 +175,7 @@ zabbix_export:
               master_item:
                 key: 'truenas.api[pool.query]'
             -
-              uuid: 3258195f678b49fe832cb5a006625317
+              uuid: 1e52fafc0240455c9db936c507a2f1cf
               name: 'TrueNAS pool [{#POOL_NAME}]: Size'
               type: DEPENDENT
               key: 'zfs.pool.size[{#POOL_NAME},size]'
@@ -171,7 +189,7 @@ zabbix_export:
               master_item:
                 key: 'truenas.api[pool.query]'
             -
-              uuid: 0ecc2a41edb948e0b54bbbc4b3aea4ad
+              uuid: 919a3e0c19d44f03a3b6387cac41f2cf
               name: 'TrueNAS pool [{#POOL_NAME}]: Used (%)'
               type: CALCULATED
               key: 'zfs.pool.size[{#POOL_NAME},used_percent]'
@@ -179,7 +197,7 @@ zabbix_export:
               units: '%'
               params: '100*last(//zfs.pool.size[{#POOL_NAME},allocated])/last(//zfs.pool.size[{#POOL_NAME},size])'
             -
-              uuid: ecdd403ad9424f43a76cb5b9adb036aa
+              uuid: e49e5767a66044ddb7b875aff6fff693
               name: 'TrueNAS pool [{#POOL_NAME}]: Warning'
               type: DEPENDENT
               key: 'zfs.pool.size[{#POOL_NAME},warning]'
@@ -206,3 +224,14 @@ zabbix_export:
               type: DISCARD_UNCHANGED_HEARTBEAT
               parameters:
                 - 1h
+      macros:
+        -
+          macro: '{$TRUENAS.API.PASSWORD}'
+        -
+          macro: '{$TRUENAS.API.PORT}'
+          value: '8000'
+        -
+          macro: '{$TRUENAS.API.SCHEME}'
+          value: http
+        -
+          macro: '{$TRUENAS.API.USER}'
