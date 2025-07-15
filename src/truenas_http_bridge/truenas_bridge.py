@@ -18,7 +18,7 @@ from truenas_api_client import Client, ClientException
 from fastapi import Request
 from websocket import WebSocketConnectionClosedException
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-from __version__ import __version__
+from truenas_http_bridge.__version__ import __version__
 
 # logging.basicConfig(level=logging.INFO)
 logger = structlog.get_logger()

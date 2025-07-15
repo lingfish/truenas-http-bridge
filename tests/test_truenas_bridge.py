@@ -3,7 +3,7 @@ import pytest
 from unittest.mock import MagicMock
 from fastapi import HTTPException
 
-from truenas_bridge import TrueNASDaemon, Settings
+from src.truenas_http_bridge.truenas_bridge import TrueNASDaemon, Settings
 from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
 
@@ -55,7 +55,7 @@ def mock_truenas_client(disable_env_file, mock_settings):
 
 @pytest.fixture
 def test_app(mock_truenas_client, setup_test_env):
-    from truenas_bridge import app
+    from src.truenas_http_bridge.truenas_bridge import app
 
     client = TestClient(app)
     yield client

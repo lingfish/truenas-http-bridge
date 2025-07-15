@@ -6,6 +6,6 @@ COPY ./requirements.txt /code/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-COPY truenas_bridge.py /code/
+COPY src/truenas_http_bridge /code/truenas_http_bridge
 
-CMD ["fastapi", "run", "truenas_bridge.py", "--host", "::", "--port", "8000"]
+CMD ["fastapi", "run", "truenas_http_bridge/truenas_bridge.py", "--host", "::", "--port", "8000"]
