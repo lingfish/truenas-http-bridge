@@ -34,12 +34,23 @@ to serve "classic" HTTP GET/POST queries, acting as a HTTP-to-websockets bridge.
 4. Edit the environment variables as needed.
 5. Hit Save.
 
-## Configuration
+## Zabbix configuration
 
 Import the Zabbix template `truenas_template.yaml` into your Zabbix server to get the necessary items.
 
 There is currently only discovery and items in the template.  **Pull requests are welcome and desired to add more things
 to the template, such as triggers, graphs, etc.**
+
+### Required macros
+
+The following macros must be configured in Zabbix for the template to work:
+
+- `{$TRUENAS.API.SCHEME}` - Protocol scheme (e.g., http or https, only http currently supported)
+- `{$TRUENAS.API.PORT}` - Port number for the TrueNAS HTTP bridge (as configured in docker)
+- `{$TRUENAS.API.USER}` - TrueNAS API username (as configured in docker)
+- `{$TRUENAS.API.PASSWORD}` - TrueNAS API password (as configured in docker)
+
+You can configure these macros at either the template or host level. Host-level macros will override template-level macros.
 
 ## How it works
 The app will listen for requests on the configured port, and pass them through to the TrueNAS API. A quick curl
