@@ -4,7 +4,7 @@ import secrets
 import signal
 from contextlib import asynccontextmanager
 import time
-from typing import Annotated
+from typing import Annotated, Any
 
 import structlog
 import tenacity
@@ -86,7 +86,7 @@ class TrueNASDaemon:
         try:
             return self.client.call(method, *params)
 
-        except (WebSocketConnectionClosedException, ClientException):
+        except (WebSocketConnectionClosedException):
             self.retrying = True
             raise
 
@@ -122,6 +122,12 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title='TrueNAS REST-to-WebSocket Bridge', lifespan=lifespan, version=__version__)
 security = HTTPBasic()
 
+WEBSOCKET_DEBUG = False
+if bool(int(os.getenv('WEBSOCKET_DEBUG'))):
+    import websocket
+    websocket.enableTrace(True)
+    WEBSOCKET_DEBUG = True
+
 
 @app.middleware('http')
 async def log_requests(request: Request, call_next):
@@ -137,6 +143,7 @@ async def log_requests(request: Request, call_next):
         method=request.method,
         path=request.url.path,
         client_ip=client_ip,
+        body=await request.json() if WEBSOCKET_DEBUG and request.method == 'post' else '...',
     )
 
     response = await call_next(request)
@@ -179,12 +186,12 @@ async def get_current_username(
 
 @app.post('/api/{path:path}')
 async def handle_api_request(
-    request: Request, path: str, request_data: dict, username: Annotated[str, Depends(get_current_username)]
+    request: Request, path: str, request_data: list[Any], username: Annotated[str, Depends(get_current_username)]
 ):
     """Handle REST API requests"""
     truenas_daemon = request.state.truenas_daemon
     method = path.replace('/', '.')
-    params = [request_data] if request_data else []
+    params = request_data if request_data else []
     logger.info(
         'Sending request',
         method=method,
